@@ -52,15 +52,15 @@ from scipy import stats
 
 # --- Local Application Imports (will now work correctly) ---
 try:
-    from pma.analytics.action_item_tracker import render_action_item_tracker
-    from pma.analytics.traceability_matrix import render_traceability_matrix
-    from pma.dhf_sections import (
+    from PMA.analytics.action_item_tracker import render_action_item_tracker
+    from PMA.analytics.traceability_matrix import render_traceability_matrix
+    from PMA.dhf_sections import (
         design_changes, design_inputs, design_outputs, design_plan, design_reviews,
         design_risk_management, design_transfer, design_validation,
         design_verification, human_factors
     )
-    from pma.utils.critical_path_utils import find_critical_path
-    from pma.utils.plot_utils import (
+    from PMA.utils.critical_path_utils import find_critical_path
+    from PMA.utils.plot_utils import (
         _RISK_CONFIG,
         create_action_item_chart, create_risk_profile_chart,
         create_roc_curve, create_levey_jennings_plot, create_lod_probit_plot, create_bland_altman_plot,
@@ -69,7 +69,7 @@ try:
         create_pr_curve, create_kaplan_meier_plot, create_power_analysis_plot,
         create_distribution_comparison_plot
     )
-    from pma.utils.session_state_manager import SessionStateManager
+    from PMA.utils.session_state_manager import SessionStateManager
 except ImportError as e:
     st.error(f"Fatal Error: A required local module could not be imported: {e}. "
              "This may be due to a missing `__init__.py` file in a subdirectory or an incorrect execution path. "
