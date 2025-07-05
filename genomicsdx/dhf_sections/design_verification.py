@@ -20,8 +20,8 @@ import numpy as np
 import plotly.express as px
 
 # --- Local Application Imports ---
-from ..utils.session_state_manager import SessionStateManager
-from ..utils.plot_utils import create_lod_probit_plot, create_bland_altman_plot
+from genomicsdx.utils.session_state_manager import SessionStateManager
+from genomicsdx.utils.plot_utils import create_lod_probit_plot, create_bland_altman_plot
 
 # --- Setup Logging ---
 logger = logging.getLogger(__name__)
