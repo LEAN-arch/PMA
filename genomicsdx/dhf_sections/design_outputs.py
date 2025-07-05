@@ -18,7 +18,7 @@ import pandas as pd
 import streamlit as st
 
 # --- Local Application Imports ---
-from ..utils.session_state_manager import SessionStateManager
+from genomicsdx.utils.session_state_manager import SessionStateManager
 
 # --- Setup Logging ---
 logger = logging.getLogger(__name__)
