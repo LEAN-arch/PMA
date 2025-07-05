@@ -175,7 +175,7 @@ def _create_mced_diagnostic_dhf_model(version: int) -> Dict[str, Any]:
 class SessionStateManager:
     """Handles the initialization and access of the application's session state."""
     _DHF_DATA_KEY = "dhf_data"
-    _CURRENT_DATA_VERSION = 50 # Final Version
+    _CURRENT_DATA_VERSION = 51 # Final Version with new data
 
     def __init__(self):
         """Initializes the session state, loading the mock data if necessary."""
