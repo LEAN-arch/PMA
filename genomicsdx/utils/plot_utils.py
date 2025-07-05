@@ -67,8 +67,13 @@ def _create_placeholder_figure(text: str, title: str, icon: str = "ℹ️") -> g
 # --- REUSABLE DATA CLEANING UTILITY ---
 def _clean_df_for_model(df: pd.DataFrame, required_cols: List[str]) -> pd.DataFrame:
     """A robust, reusable function to clean a DataFrame before statistical modeling."""
+    if not isinstance(df, pd.DataFrame) or df.empty:
+        return pd.DataFrame()
     df_clean = df.copy()
     for col in required_cols:
+        if col not in df_clean.columns:
+            logger.warning(f"Required column '{col}' for model cleaning not found in DataFrame.")
+            return pd.DataFrame()
         df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce')
     df_clean.replace([np.inf, -np.inf], np.nan, inplace=True)
     df_clean.dropna(subset=required_cols, inplace=True)
@@ -291,8 +296,18 @@ def create_shap_summary_plot(shap_values: np.ndarray, features: pd.DataFrame) ->
 
 def create_forecast_plot(history_df: pd.DataFrame, forecast_df: pd.DataFrame) -> go.Figure:
     """Creates a time series forecast plot."""
-    # ... (code identical to previous version) ...
-    return go.Figure()
+    title = "<b>Time Series Forecast</b>"
+    try:
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=history_df.index, y=history_df.iloc[:, 0], name='Historical Data', line=dict(color='royalblue')))
+        fig.add_trace(go.Scatter(x=forecast_df.index, y=forecast_df['mean'], name='Forecast', line=dict(color='darkorange', dash='dash')))
+        fig.add_trace(go.Scatter(x=forecast_df.index, y=forecast_df['mean_ci_upper'], fill='tonexty', fillcolor='rgba(255,165,0,0.2)', line=dict(color='rgba(255,255,255,0)'), showlegend=False))
+        fig.add_trace(go.Scatter(x=forecast_df.index, y=forecast_df['mean_ci_lower'], fill='tonexty', fillcolor='rgba(255,165,0,0.2)', line=dict(color='rgba(255,255,255,0)'), name='95% CI'))
+        fig.update_layout(title_text=title, xaxis_title="Date", yaxis_title="Value", **_PLOT_LAYOUT_CONFIG)
+        return fig
+    except Exception as e:
+        logger.error(f"Error creating forecast plot: {e}", exc_info=True)
+        return _create_placeholder_figure("Forecast Plot Error", title, "⚠️")
 
 ### NEW PLOTTING FUNCTIONS ###
 
@@ -322,6 +337,7 @@ def create_kaplan_meier_plot(kmf1: Any, kmf2: Any, p_value: float) -> Optional[i
         plt.title(f"Kaplan-Meier Survival Curves (Log-Rank p={p_value:.3f})")
         plt.xlabel("Time (Days)")
         plt.ylabel("Survival Probability")
+        plt.grid(True, which='both', linestyle='--', linewidth=0.5)
         plt.tight_layout()
         buf = io.BytesIO(); fig.savefig(buf, format="png", bbox_inches='tight'); buf.seek(0); plt.close(fig)
         return buf
@@ -330,12 +346,12 @@ def create_kaplan_meier_plot(kmf1: Any, kmf2: Any, p_value: float) -> Optional[i
         return None
 
 def create_distribution_comparison_plot(dist1: np.ndarray, dist2: np.ndarray, feature_name: str) -> go.Figure:
-    """Creates a histogram/KDE plot comparing two distributions."""
+    """Creates a histogram/KDE plot comparing two distributions for data drift analysis."""
     try:
         fig = go.Figure()
-        fig.add_trace(go.Histogram(x=dist1, name='Training Data', histnorm='probability density', opacity=0.75))
-        fig.add_trace(go.Histogram(x=dist2, name='Production Data', histnorm='probability density', opacity=0.75))
-        fig.update_layout(barmode='overlay', title=f"<b>Data Drift Analysis for '{feature_name}'</b>", xaxis_title="Value", yaxis_title="Density", **_PLOT_LAYOUT_CONFIG)
+        fig.add_trace(go.Histogram(x=dist1, name='Training Data', histnorm='probability density', opacity=0.75, marker_color='#1f77b4'))
+        fig.add_trace(go.Histogram(x=dist2, name='Production Data', histnorm='probability density', opacity=0.75, marker_color='#ff7f0e'))
+        fig.update_layout(barmode='overlay', title=f"<b>Data Drift Analysis for '{feature_name}'</b>", xaxis_title="Feature Value", yaxis_title="Density", **_PLOT_LAYOUT_CONFIG)
         return fig
     except Exception as e:
         logger.error(f"Error creating distribution comparison plot: {e}", exc_info=True)
