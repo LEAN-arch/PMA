@@ -20,7 +20,7 @@ import streamlit as st
 import plotly.express as px
 
 # --- Local Application Imports ---
-from ..utils.session_state_manager import SessionStateManager
+from genomicsdx.utils.session_state_manager import SessionStateManager
 
 # --- Setup Logging ---
 logger = logging.getLogger(__name__)
