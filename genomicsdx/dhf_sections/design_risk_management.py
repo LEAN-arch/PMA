@@ -20,8 +20,8 @@ import plotly.graph_objects as go
 import numpy as np
 
 # --- Local Application Imports ---
-from ..utils.session_state_manager import SessionStateManager
-from ..utils.plot_utils import _RISK_CONFIG
+from genomicsdx.utils.session_state_manager import SessionStateManager
+from genomicsdx.utils.plot_utils import _RISK_CONFIG
 
 # --- Setup Logging ---
 logger = logging.getLogger(__name__)
