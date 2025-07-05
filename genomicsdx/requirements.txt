@@ -1,0 +1,38 @@
+# ==============================================================================
+# Requirements for the GenomicsDx DHF Command Center
+# ==============================================================================
+#
+# This file lists the Python packages required to run the application.
+# Install all dependencies using the following command:
+# pip install -r requirements.txt
+#
+
+# --- Core Application & UI ---
+# Streamlit is the web application framework used to build the dashboard.
+streamlit==1.33.0
+
+# --- Data Manipulation & Numerical Computation ---
+# Pandas is used for data manipulation and analysis (DataFrames).
+# NumPy is the fundamental package for numerical computation in Python.
+pandas==2.2.1
+numpy==1.26.4
+
+# --- Plotting & Visualization ---
+# Plotly is the primary library for creating interactive charts and graphs.
+# Matplotlib is used as a backend for specific plots (e.g., SHAP, Kaplan-Meier).
+plotly==5.19.0
+matplotlib==3.8.3
+
+# --- Statistical Modeling & Analysis ---
+# SciPy provides algorithms for optimization, linear algebra, and statistics.
+# Statsmodels is used for advanced statistical models like ANOVA, OLS, and ARIMA.
+# Lifelines is a specialized library for survival analysis (Kaplan-Meier).
+scipy==1.12.0
+statsmodels==0.14.1
+lifelines==0.28.0
+
+# --- Machine Learning & Explainability ---
+# Scikit-learn is the core library for machine learning models and metrics.
+# SHAP (SHapley Additive exPlanations) is used for model explainability.
+scikit-learn==1.4.1.post1
+shap==0.45.0
