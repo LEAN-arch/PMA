@@ -20,8 +20,8 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 # --- Local Application Imports ---
-from ..utils.session_state_manager import SessionStateManager
-from ..utils.plot_utils import create_roc_curve, create_confusion_matrix_heatmap
+from genomicsdx.utils.session_state_manager import SessionStateManager
+from genomicsdx.utils.plot_utils import create_roc_curve, create_confusion_matrix_heatmap
 
 # --- Setup Logging ---
 logger = logging.getLogger(__name__)
@@ -45,8 +45,8 @@ def render_design_validation(ssm: SessionStateManager) -> None:
 
     try:
         # --- 1. Load Data and Prepare Dependencies ---
-        validation_data: Dict[str, Any] = ssm.get_data("clinical_study")
-        inputs_data: List[Dict[str, Any]] = ssm.get_data("design_inputs", "requirements")
+        validation_data: Dict[str, Any] = ssm.get_data("clinical_study") or {}
+        inputs_data: List[Dict[str, Any]] = ssm.get_data("design_inputs", "requirements") or []
         logger.info("Loaded design validation and clinical study data.")
 
         user_needs = [req for req in inputs_data if req.get('type') == 'User Need']
@@ -95,8 +95,8 @@ def render_design_validation(ssm: SessionStateManager) -> None:
             
             with perf_cols[1]:
                 # Mock clinical data for visualization
-                np.random.seed(42)
-                scores = np.concatenate([np.random.normal(0.8, 0.2, 50), np.random.normal(0.2, 0.15, 950)]).clip(0, 1)
+                rng = np.random.default_rng(42)
+                scores = np.concatenate([rng.normal(0.8, 0.2, 50), rng.normal(0.2, 0.15, 950)]).clip(0, 1)
                 truth = np.concatenate([np.ones(50), np.zeros(950)])
                 clinical_df = pd.DataFrame({'score': scores, 'truth': truth})
                 
@@ -122,7 +122,7 @@ def render_design_validation(ssm: SessionStateManager) -> None:
             hf_studies_df = pd.DataFrame(hf_studies_data)
             
             if 'user_need_validated' in hf_studies_df.columns:
-                 hf_studies_df['user_need_display'] = hf_studies_df['user_need_validated'].map({v:k for k,v in user_need_map.items()})
+                 hf_studies_df['user_need_display'] = hf_studies_df['user_need_validated'].map({v:k for k,v in user_need_map.items() if v})
             else:
                  hf_studies_df['user_need_display'] = ""
 
