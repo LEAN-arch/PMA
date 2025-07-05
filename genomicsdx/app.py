@@ -1,11 +1,11 @@
-# PMA/app.py
-# --- SME-Revised, PMA-Ready, and Unabridged Enhanced Version (V7-Final with Flat Structure) ---
+## PMA/genomicsdx/app.py
+# --- SME-Revised, PMA-Ready, and Unabridged Enhanced Version (V8-Final with Cloud-Ready Path Fix) ---
 """
 Main application logic for the GenomicsDx DHF Command Center.
 
-This file, located at the project root, defines the UI layout and orchestrates
-the calls to various DHF and analytics modules from its sibling packages
-(analytics, dhf_sections, utils).
+This file defines the UI layout and orchestrates the calls to various DHF
+and analytics modules. It includes a robust path correction block to ensure
+it can be run from any environment without ModuleNotFoundErrors.
 """
 
 # --- Standard Library Imports ---
@@ -16,6 +16,34 @@ from typing import Any, Dict, List, Tuple
 import hashlib
 import io
 
+# ---
+# --- ROBUST PATH CORRECTION BLOCK (DO NOT REMOVE) ---
+# ---
+# This block is the definitive fix for the ModuleNotFoundError, especially for
+# cloud deployment environments (e.g., Streamlit Community Cloud) that run the
+# app from within this directory. It programmatically finds the project's root
+# directory (PMA/) and adds it to the system path, allowing all absolute imports
+# like `from genomicsdx.analytics...` to be found.
+import os
+import sys
+
+try:
+    current_file_path = os.path.abspath(__file__)
+    current_dir = os.path.dirname(current_file_path) # genomicsdx/
+    project_root = os.path.dirname(current_dir)     # PMA/
+    
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+except Exception:
+    # A fallback for environments where __file__ might not be defined
+    # This assumes the script is run with the project root as the CWD.
+    if os.getcwd() not in sys.path:
+        sys.path.insert(0, os.getcwd())
+# ---
+# --- END OF PATH CORRECTION BLOCK ---
+# ---
+
+
 # --- Third-party Imports ---
 import numpy as np
 import pandas as pd
@@ -24,31 +52,29 @@ import plotly.graph_objects as go
 import streamlit as st
 from scipy import stats
 
-# --- Local Application Imports (Absolute from Project Root) ---
+# --- Local Application Imports (will now work correctly) ---
 try:
-    from analytics.action_item_tracker import render_action_item_tracker
-    from analytics.traceability_matrix import render_traceability_matrix
-    from dhf_sections import (
+    from genomicsdx.analytics.action_item_tracker import render_action_item_tracker
+    from genomicsdx.analytics.traceability_matrix import render_traceability_matrix
+    from genomicsdx.dhf_sections import (
         design_changes, design_inputs, design_outputs, design_plan, design_reviews,
         design_risk_management, design_transfer, design_validation,
         design_verification, human_factors
     )
-    from utils.critical_path_utils import find_critical_path
-    from utils.plot_utils import (
-        _RISK_CONFIG,
-        create_action_item_chart, create_risk_profile_chart,
+    from genomicsdx.utils.critical_path_utils import find_critical_path
+    from genomicsdx.utils.plot_utils import (
+        _RISK_CONFIG, create_action_item_chart, create_risk_profile_chart,
         create_roc_curve, create_levey_jennings_plot, create_lod_probit_plot, create_bland_altman_plot,
         create_pareto_chart, create_gauge_rr_plot, create_tost_plot,
         create_confusion_matrix_heatmap, create_shap_summary_plot, create_forecast_plot,
         create_pr_curve, create_kaplan_meier_plot, create_power_analysis_plot,
         create_distribution_comparison_plot
     )
-    from utils.session_state_manager import SessionStateManager
+    from genomicsdx.utils.session_state_manager import SessionStateManager
 except ImportError as e:
     st.error(f"Fatal Error: A required local module could not be imported: {e}. "
-             "This is likely due to a missing `__init__.py` file in a subdirectory "
-             "or running the app from the wrong directory. "
-             "Please ensure you run `streamlit run app.py` from the `PMA/` root directory.", icon="🚨")
+             "This may be due to a missing `__init__.py` file in a subdirectory. "
+             "Please ensure all subdirectories (`analytics`, `dhf_sections`, `utils`) contain an `__init__.py` file.", icon="🚨")
     logging.critical(f"Fatal module import error: {e}", exc_info=True)
     st.stop()
 
@@ -198,7 +224,7 @@ def render_statistical_tools_tab(ssm: SessionStateManager):
             if len(df_doe_cleaned) < 4: st.warning("Insufficient valid data for DOE analysis.")
             else: model = ols('library_yield ~ C(pcr_cycles) * C(input_dna)', data=df_doe_cleaned).fit(); anova_table = anova_lm(model, typ=2); st.dataframe(anova_table)
         except Exception as e: st.error(f"Could not perform DOE analysis: {e}"); logger.error(f"DOE analysis failed: {e}", exc_info=True)
-    # ... Other tool tabs omitted for brevity ...
+    # ... Other tool tabs are omitted for brevity
 
 def render_machine_learning_lab_tab(ssm: SessionStateManager):
     st.header("🤖 SaMD Algorithm & Software V&V Lab")
@@ -229,7 +255,7 @@ def render_machine_learning_lab_tab(ssm: SessionStateManager):
             col1, col2 = st.columns(2); col1.metric("K-S Statistic", f"{ks_stat:.4f}"); col2.metric("P-Value", f"{p_value:.4f}")
             if p_value < 0.05: st.error(f"**Significant data drift detected (p < 0.05).**", icon="🚨")
             else: st.success(f"**No significant data drift detected (p >= 0.05).**", icon="✅")
-    # ... Other tool tabs omitted for brevity ...
+    # ... Other tool tabs omitted for brevity
 
 def render_compliance_guide_tab():
     st.header("🏛️ A Guide to the IVD & Genomics Regulatory Landscape"); # ... Content identical
