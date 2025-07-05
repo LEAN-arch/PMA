@@ -20,8 +20,8 @@ import streamlit as st
 import plotly.graph_objects as go
 
 # --- Local Application Imports ---
-from ..utils.session_state_manager import SessionStateManager
-from ..utils.plot_utils import create_pareto_chart
+from genomicsdx.utils.session_state_manager import SessionStateManager
+from genomicsdx.utils.plot_utils import create_pareto_chart
 
 # --- Setup Logging ---
 logger = logging.getLogger(__name__)
